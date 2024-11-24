@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // DOM Elements
+    // Elementos do DOM
     const saveConfigButton = document.getElementById("saveConfig");
     const startRaceButton = document.getElementById("startRace");
     const burnoutButton = document.getElementById("burnoutButton");
@@ -8,70 +8,77 @@ document.addEventListener("DOMContentLoaded", () => {
     const car = document.getElementById("car");
     const reactionTimeEl = document.getElementById("reactionTime");
     const totalTimeEl = document.getElementById("totalTime");
-    
-    // Game variables
+
+    // Variáveis do Jogo
     let boost = 0.5;
     let power = 5;
     let suspensionFront = 5;
     let suspensionRear = 5;
-    let reactionTime = 0;
-    let totalTime = 0;
     let carPosition = 0;
-    let burnoutReady = false;
+    let reactionStart = 0;
+    let trackLength = 1000; // Pista ajustada para experiência fluida
+    let burnoutActive = false;
 
-    const trackLength = 1500;
-
-    // Save configuration
+    // Salvar configurações
     saveConfigButton.addEventListener("click", () => {
         boost = document.getElementById("boost").value / 100;
         power = document.getElementById("power").value / 10;
         suspensionFront = document.getElementById("suspensionFront").value / 10;
         suspensionRear = document.getElementById("suspensionRear").value / 10;
-        alert("Configuration Saved!");
+        alert("Configurações Salvas!");
     });
 
-    // Start race
+    // Iniciar Corrida
     startRaceButton.addEventListener("click", () => {
         document.getElementById("menu").style.display = "none";
         document.getElementById("race").style.display = "block";
         resetRace();
     });
 
-    // Burnout system
-    burnoutButton.addEventListener("click", () => {
-        burnoutReady = true;
-        launchButton.disabled = false;
-        alert("Burnout Ready! Launch Enabled.");
+    // Burnout
+    burnoutButton.addEventListener("mousedown", () => {
+        burnoutActive = true;
+        car.style.animation = "shake 0.1s infinite";
     });
 
-    // Launch system
+    burnoutButton.addEventListener("mouseup", () => {
+        burnoutActive = false;
+        car.style.animation = "";
+        alert("Burnout Completo!");
+        launchButton.disabled = false;
+    });
+
+    // Largar
     launchButton.addEventListener("click", () => {
-        const start = performance.now();
+        if (!burnoutActive) {
+            alert("Você precisa fazer o burnout antes de lançar!");
+            return;
+        }
+
+        reactionStart = performance.now();
         const interval = setInterval(() => {
             carPosition += power * (1 + boost);
-            car.style.left = `${carPosition}px`;
+            car.style.left = `${(carPosition / trackLength) * 100}%`;
 
             if (carPosition >= trackLength) {
                 clearInterval(interval);
-                totalTime = performance.now() - start;
+                const totalTime = performance.now() - reactionStart;
                 totalTimeEl.textContent = `Total: ${totalTime.toFixed(2)}ms`;
-                alert("Race Complete!");
+                alert("Corrida Finalizada!");
             }
         }, 16);
     });
 
-    // Restart race
+    // Reiniciar Corrida
     restartRaceButton.addEventListener("click", resetRace);
 
-    // Reset race
+    // Resetar Corrida
     function resetRace() {
         car.style.left = "0";
         carPosition = 0;
-        totalTime = 0;
-        reactionTime = 0;
         reactionTimeEl.textContent = "Reaction: 0ms";
         totalTimeEl.textContent = "Total: 0ms";
-        burnoutReady = false;
+        burnoutActive = false;
         launchButton.disabled = true;
     }
 });
