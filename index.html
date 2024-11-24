@@ -49,9 +49,13 @@
             transition: transform 0.2s ease-out;
         }
 
-        #start-btn {
-            display: block;
-            margin: 20px auto;
+        .buttons {
+            text-align: center;
+            margin: 20px;
+        }
+
+        button {
+            margin: 5px;
             padding: 10px 20px;
             font-size: 1.2em;
             background-color: #0dcaf0;
@@ -61,12 +65,12 @@
             cursor: pointer;
         }
 
-        #start-btn:disabled {
+        button:disabled {
             background-color: #0a6d9e;
             cursor: not-allowed;
         }
 
-        .results-popup {
+        .results-popup, .tune-popup {
             position: fixed;
             top: 50%;
             left: 50%;
@@ -81,17 +85,26 @@
             display: none;
         }
 
-        .results-popup h2 {
+        .results-popup h2, .tune-popup h2 {
             margin-top: 0;
         }
 
-        .results-popup button {
+        .results-popup button, .tune-popup button {
             margin-top: 15px;
             padding: 10px 20px;
             background-color: #0dcaf0;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+        }
+
+        .tune-popup input {
+            width: 80%;
+            margin: 5px 0;
+            padding: 5px;
+            border: 2px solid #0dcaf0;
+            border-radius: 5px;
+            text-align: center;
         }
 
         @media (max-width: 768px) {
@@ -121,12 +134,26 @@
             <div class="car" id="opponent-car-3">🚕</div>
         </div>
     </div>
-    <button id="start-btn">Iniciar Corrida</button>
 
+    <div class="buttons">
+        <button id="start-btn">Iniciar Corrida</button>
+        <button id="tune-btn">Tune ⚙️</button>
+    </div>
+
+    <!-- Resultados -->
     <div class="results-popup" id="results-popup">
         <h2>Resultados da Corrida</h2>
         <p id="results-details"></p>
         <button onclick="closeResults()">Fechar</button>
+    </div>
+
+    <!-- Tune (ECU) -->
+    <div class="tune-popup" id="tune-popup">
+        <h2>ECU - Mapa de Combustível</h2>
+        <p>Digite o ajuste (0.8 - 1.2):</p>
+        <input type="number" id="fuel-map" step="0.1" min="0.8" max="1.2" value="1.0">
+        <button onclick="saveTune()">Salvar</button>
+        <button onclick="closeTune()">Fechar</button>
     </div>
 
     <script>
@@ -137,25 +164,33 @@
             document.getElementById("opponent-car-3")
         ];
         const startBtn = document.getElementById("start-btn");
+        const tuneBtn = document.getElementById("tune-btn");
         const resultsPopup = document.getElementById("results-popup");
         const resultsDetails = document.getElementById("results-details");
+        const tunePopup = document.getElementById("tune-popup");
+        const fuelMapInput = document.getElementById("fuel-map");
 
         let raceStarted = false;
+        let fuelMap = 1.0;
 
         startBtn.addEventListener("click", () => {
             if (raceStarted) return;
             raceStarted = true;
             startBtn.disabled = true;
 
-            const playerTime = (Math.random() * 2 + 3).toFixed(2); // Simula entre 3 a 5 segundos
-            const opponentTimes = opponentCars.map(() => (Math.random() * 2 + 3).toFixed(2));
+            const playerTime = (6 * (1 / fuelMap)).toFixed(2); // Simula tempo baseado no mapa
+            const opponentTimes = opponentCars.map(() => (Math.random() * 1 + 5.5).toFixed(2)); // Média de 6 segundos
 
             animateCars(playerTime, opponentTimes);
         });
 
+        tuneBtn.addEventListener("click", () => {
+            tunePopup.style.display = "block";
+        });
+
         function animateCars(playerTime, opponentTimes) {
             const totalDistance = 90; // % da pista
-            const timeFactor = 1000; // para ajustar o tempo
+            const timeFactor = 1000;
 
             playerCar.style.transitionDuration = `${playerTime}s`;
             playerCar.style.transform = `translateX(${totalDistance}%)`;
@@ -187,7 +222,6 @@
             raceStarted = false;
             startBtn.disabled = false;
 
-            // Reset cars
             resetCars();
         }
 
@@ -198,6 +232,20 @@
 
         function closeResults() {
             resultsPopup.style.display = "none";
+        }
+
+        function closeTune() {
+            tunePopup.style.display = "none";
+        }
+
+        function saveTune() {
+            const value = parseFloat(fuelMapInput.value);
+            if (value >= 0.8 && value <= 1.2) {
+                fuelMap = value;
+                closeTune();
+            } else {
+                alert("Ajuste inválido! Use valores entre 0.8 e 1.2.");
+            }
         }
     </script>
 </body>
