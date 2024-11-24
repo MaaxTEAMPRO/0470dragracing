@@ -1,63 +1,61 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jogo de Arrancada</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Arrancada</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-  <div id="game">
-    <!-- Menu -->
     <div id="menu">
-      <h1>Jogo de Arrancada</h1>
-      <div class="config">
-        <label>
-          <span>Combustível (Boost):</span>
-          <input type="range" id="boost" min="1" max="10" value="5">
-        </label>
-        <label>
-          <span>Potência:</span>
-          <input type="range" id="power" min="1" max="10" value="5">
-        </label>
-        <label>
-          <span>Escolha seu veículo:</span>
-          <select id="vehicle">
-            <option value="🚗">Carro</option>
-            <option value="🏎️">F1</option>
-            <option value="🚚">Caminhão</option>
-            <option value="✈️">Avião</option>
-          </select>
-        </label>
-        <button id="saveConfig">Salvar Configurações</button>
+        <h1>Jogo de Arrancada</h1>
         <button id="startRace">Iniciar Corrida</button>
-      </div>
+        <button id="backToMenu">Voltar ao Menu</button>
+        <div>
+            <label for="boost">Boost:</label>
+            <input type="range" id="boost" min="0" max="10" value="5">
+        </div>
+        <div>
+            <label for="power">Potência:</label>
+            <input type="range" id="power" min="0" max="10" value="5">
+        </div>
+        <div>
+            <label for="suspensionFront">Suspensão Frente:</label>
+            <input type="range" id="suspensionFront" min="0" max="10" value="5">
+        </div>
+        <div>
+            <label for="suspensionRear">Suspensão Traseira:</label>
+            <input type="range" id="suspensionRear" min="0" max="10" value="5">
+        </div>
+        <div>
+            <label for="vehicle">Veículo:</label>
+            <select id="vehicle">
+                <option value="🚗">Carro</option>
+                <option value="🏎️">Carro de Corrida</option>
+                <option value="🚙">SUV</option>
+            </select>
+        </div>
+        <button id="saveConfig">Salvar Configurações</button>
     </div>
 
-    <!-- Corrida -->
-    <div id="race" style="display: none;">
-      <h1>Corrida</h1>
-      <div id="pinheirinho">
-        <div class="light" id="light1"></div>
-        <div class="light" id="light2"></div>
-        <div class="light" id="light3"></div>
-      </div>
-      <div id="track">
+    <div id="race" style="display:none;">
         <div id="car">🚗</div>
-      </div>
-      <div id="results">
-        <p><strong>Tempo de Reação:</strong> <span id="reactionTime">0</span> ms</p>
-        <p><strong>Tempo Total:</strong> <span id="totalTime">0</span> ms</p>
-      </div>
-      <div id="controls">
-        <button id="accelerateButton">Acelerar</button>
-        <button id="launchButton" disabled>Launch</button>
-        <button id="restartRace">Reiniciar</button>
-        <button id="backToMenu">Menu</button>
-        <button id="printResult">Imprimir Resultado</button>
-      </div>
+        <div id="burnoutBar"></div>
+        <div id="targetZone"></div>
+        <div class="light ready"></div>
+        <div class="light ready"></div>
+        <div class="light ready"></div>
+        <button id="accelerateButton" style="display:none;">Acelerar</button>
+        <button id="launchButton" style="display:none;">Largar</button>
+        <div id="reactionTime">Tempo de Reação: 0 ms</div>
+        <div id="totalTime">Tempo Total: 0 ms</div>
+        <button id="restartRace">Reiniciar Corrida</button>
+        <button id="printResult">Salvar Resultado</button>
     </div>
-  </div>
-  <script src="game.js"></script>
+
+    <script src="game.js"></script>
 </body>
+
 </html>
