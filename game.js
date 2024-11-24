@@ -11,12 +11,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const lights = document.querySelectorAll(".light");
   const reactionTimeEl = document.getElementById("reactionTime");
   const totalTimeEl = document.getElementById("totalTime");
+  const burnoutBar = document.getElementById("burnoutBar");
+  const targetZone = document.getElementById("targetZone");
   const menu = document.getElementById("menu");
   const race = document.getElementById("race");
 
   // Configurations
   let boost = 1; // Boost multiplier (default)
   let power = 5; // Power multiplier (default)
+  let suspensionFront = 0.5; // Suspension height (front)
+  let suspensionRear = 0.5; // Suspension height (rear)
   let selectedVehicle = "🚗"; // Default vehicle
   let burnoutMode = false; // Toggle for burnout
 
@@ -30,6 +34,8 @@ document.addEventListener("DOMContentLoaded", () => {
   saveConfigButton.addEventListener("click", () => {
     boost = document.getElementById("boost").value / 10;
     power = document.getElementById("power").value / 10;
+    suspensionFront = document.getElementById("suspensionFront").value / 10;
+    suspensionRear = document.getElementById("suspensionRear").value / 10;
     selectedVehicle = document.getElementById("vehicle").value;
     alert("Configurações salvas!");
   });
@@ -68,33 +74,54 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Burnout logic
   const startBurnout = () => {
-    let burnoutProgress = 0;
-    accelerateButton.style.display = "inline-block";
+    burnoutBar.style.width = "0%";
+    targetZone.style.left = "40%";
+    targetZone.style.width = "20%";
+    accelerateButton.style.display = "block";
     launchButton.style.display = "none";
 
+    let burnoutActive = false;
+
     const handleAccelerate = () => {
-      burnoutProgress += 5;
-      if (burnoutProgress >= 100) {
-        burnoutProgress = 100;
-        alert("Burnout perfeito! Penalty reduzido.");
+      burnoutActive = true;
+      car.style.animation = "shake 0.1s infinite"; // Simulating burnout vibrations
+
+      const increaseBar = () => {
+        if (!burnoutActive) return;
+        let width = parseFloat(burnoutBar.style.width || "0");
+        if (width < 100) {
+          width += 5;
+          burnoutBar.style.width = `${width}%`;
+          setTimeout(increaseBar, 100);
+        }
+      };
+
+      increaseBar();
+    };
+
+    const stopAccelerate = () => {
+      burnoutActive = false;
+      car.style.animation = "";
+
+      // Evaluate burnout success
+      const width = parseFloat(burnoutBar.style.width || "0");
+      const targetStart = parseFloat(targetZone.style.left);
+      const targetEnd = targetStart + parseFloat(targetZone.style.width);
+
+      if (width >= targetStart && width <= targetEnd) {
+        alert("Burnout perfeito!");
         penaltyTime = 0;
-        accelerateButton.removeEventListener("mousedown", handleAccelerate);
-        accelerateButton.style.display = "none";
-        startPinheirinho();
+      } else {
+        alert("Burnout falhou! Penalidade aplicada.");
+        penaltyTime = 1000; // 1 second penalty
       }
+
+      accelerateButton.style.display = "none";
+      startPinheirinho();
     };
 
     accelerateButton.addEventListener("mousedown", handleAccelerate);
-
-    // Stop burnout early
-    accelerateButton.addEventListener("mouseup", () => {
-      if (burnoutProgress < 50) {
-        alert("Burnout falhou! Penalty aplicado.");
-        penaltyTime = 1000; // 1 second penalty
-      }
-      accelerateButton.style.display = "none";
-      startPinheirinho();
-    });
+    accelerateButton.addEventListener("mouseup", stopAccelerate);
   };
 
   // Pinheirinho logic
@@ -109,6 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
             lights.forEach((light) => light.classList.remove("active"));
             lights.forEach((light) => light.classList.add("ready"));
             reactionStartTime = performance.now();
+            launchButton.style.display = "block";
             launchButton.disabled = false;
           }, 1000);
         }
@@ -133,14 +161,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Move the car
   const moveCar = (reactionTime) => {
-    const speedMultiplier = power * (1 + boost); // Adjusted for power and boost
-    const travelTime = trackLength / speedMultiplier; // Calculate travel time
+    const speedMultiplier = power * (1 + boost);
+    const travelTime = trackLength / speedMultiplier;
 
-    car.style.transition = `left ${travelTime}s linear`;
-    car.style.left = "100%"; // Move car to finish line
+    car.style.transition = `left ${travelTime}s linear, transform ${travelTime}s ease-in-out`;
+    car.style.left = "100%";
+
+    // Suspension and downforce effect
+    car.style.transform = `translateY(${5 * (suspensionRear - suspensionFront)}px) scale(${1 + power / 10})`;
 
     setTimeout(() => {
-      const totalTime = reactionTime + travelTime * 1000 + penaltyTime; // Total time calculation
+      const totalTime = reactionTime + travelTime * 1000 + penaltyTime;
       totalTimeEl.textContent = totalTime.toFixed(2);
       alert(`Corrida finalizada! Tempo total: ${totalTime.toFixed(2)}ms`);
     }, travelTime * 1000);
@@ -150,6 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const resetRace = () => {
     car.style.left = "0";
     car.style.transition = "none";
+    car.style.transform = "none";
     lights.forEach((light) => {
       light.classList.remove("active");
       light.classList.remove("ready");
@@ -158,7 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
     totalTimeEl.textContent = "0";
     penaltyTime = 0;
     accelerateButton.style.display = "none";
-    launchButton.disabled = true;
+    launchButton.style.display = "none";
   };
 
   // Print results
