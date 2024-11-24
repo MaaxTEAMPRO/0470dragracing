@@ -98,13 +98,35 @@
             cursor: pointer;
         }
 
-        .tune-popup input {
-            width: 80%;
-            margin: 5px 0;
-            padding: 5px;
+        .tune-popup .rpm-display {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: #0dcaf0;
+        }
+
+        .tune-popup .tune-table {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .tune-popup .tune-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .tune-popup .tune-row span {
+            flex: 1;
+            text-align: left;
+        }
+
+        .tune-popup .tune-row input {
+            width: 15%;
+            text-align: center;
             border: 2px solid #0dcaf0;
             border-radius: 5px;
-            text-align: center;
+            background-color: #111c3d;
+            color: #ffffff;
         }
 
         @media (max-width: 768px) {
@@ -149,9 +171,33 @@
 
     <!-- Tune (ECU) -->
     <div class="tune-popup" id="tune-popup">
-        <h2>ECU - Mapa de Combustível</h2>
-        <p>Digite o ajuste (0.8 - 1.2):</p>
-        <input type="number" id="fuel-map" step="0.1" min="0.8" max="1.2" value="1.0">
+        <div class="rpm-display">RPM: 5000</div>
+        <div class="tune-table">
+            <div class="tune-row">
+                <span>Pressão:</span>
+                <input type="number" class="pressure" min="0" max="10" value="5">
+                <input type="number" class="pressure" min="0" max="10" value="5">
+                <input type="number" class="pressure" min="0" max="10" value="5">
+                <input type="number" class="pressure" min="0" max="10" value="5">
+                <input type="number" class="pressure" min="0" max="10" value="5">
+            </div>
+            <div class="tune-row">
+                <span>Torque:</span>
+                <input type="number" class="torque" min="0" max="10" value="5">
+                <input type="number" class="torque" min="0" max="10" value="5">
+                <input type="number" class="torque" min="0" max="10" value="5">
+                <input type="number" class="torque" min="0" max="10" value="5">
+                <input type="number" class="torque" min="0" max="10" value="5">
+            </div>
+            <div class="tune-row">
+                <span>Downforce:</span>
+                <input type="number" class="downforce" min="0" max="10" value="5">
+                <input type="number" class="downforce" min="0" max="10" value="5">
+                <input type="number" class="downforce" min="0" max="10" value="5">
+                <input type="number" class="downforce" min="0" max="10" value="5">
+                <input type="number" class="downforce" min="0" max="10" value="5">
+            </div>
+        </div>
         <button onclick="saveTune()">Salvar</button>
         <button onclick="closeTune()">Fechar</button>
     </div>
@@ -168,25 +214,49 @@
         const resultsPopup = document.getElementById("results-popup");
         const resultsDetails = document.getElementById("results-details");
         const tunePopup = document.getElementById("tune-popup");
-        const fuelMapInput = document.getElementById("fuel-map");
 
         let raceStarted = false;
-        let fuelMap = 1.0;
+        let rpm = 5000;
+        let performanceMultiplier = 1;
+
+        tuneBtn.addEventListener("click", () => {
+            tunePopup.style.display = "block";
+        });
 
         startBtn.addEventListener("click", () => {
             if (raceStarted) return;
             raceStarted = true;
             startBtn.disabled = true;
 
-            const playerTime = (6 * (1 / fuelMap)).toFixed(2); // Simula tempo baseado no mapa
-            const opponentTimes = opponentCars.map(() => (Math.random() * 1 + 5.5).toFixed(2)); // Média de 6 segundos
+            const playerTime = calculatePerformance();
+            const opponentTimes = opponentCars.map(() => (Math.random() * 1 + 5.5).toFixed(2));
 
             animateCars(playerTime, opponentTimes);
         });
 
-        tuneBtn.addEventListener("click", () => {
-            tunePopup.style.display = "block";
-        });
+        function calculatePerformance() {
+            const pressures = Array.from(document.querySelectorAll(".pressure")).map(input => parseFloat(input.value));
+            const torques = Array.from(document.querySelectorAll(".torque")).map(input => parseFloat(input.value));
+            const downforces = Array.from(document.querySelectorAll(".downforce")).map(input => parseFloat(input.value));
+
+            if (![...pressures, ...torques, ...downforces].every(value => value >= 0 && value <= 10)) {
+                alert("Todos os valores devem estar entre 0 e 10.");
+                return 10; // Penalidade: tempo alto se os valores não forem válidos
+            }
+
+            const avgPressure = pressures.reduce((a, b) => a + b, 0) / pressures.length;
+            const avgTorque = torques.reduce((a, b) => a + b, 0) / torques.length;
+            const avgDownforce = downforces.reduce((a, b) => a + b, 0) / downforces.length;
+
+            // Verificação de coesão: penalidades ou bônus
+            let penalty = 0;
+            if (avgPressure > 7 || avgPressure < 3) penalty += 1; // Mapa de pressão desequilibrado
+            if (avgTorque > 7 || avgTorque < 3) penalty += 1; // Torque fora do limite
+            if (avgDownforce > 7 || avgDownforce < 3) penalty += 1; // Downforce excessiva/insuficiente
+
+            performanceMultiplier = 1 - penalty * 0.1; // Penalidade reduz desempenho
+            return (6 * performanceMultiplier).toFixed(2); // Base de 6 segundos ajustada por performance
+        }
 
         function animateCars(playerTime, opponentTimes) {
             const totalDistance = 90; // % da pista
@@ -239,13 +309,18 @@
         }
 
         function saveTune() {
-            const value = parseFloat(fuelMapInput.value);
-            if (value >= 0.8 && value <= 1.2) {
-                fuelMap = value;
-                closeTune();
-            } else {
-                alert("Ajuste inválido! Use valores entre 0.8 e 1.2.");
+            const pressures = Array.from(document.querySelectorAll(".pressure")).map(input => parseFloat(input.value));
+            const torques = Array.from(document.querySelectorAll(".torque")).map(input => parseFloat(input.value));
+            const downforces = Array.from(document.querySelectorAll(".downforce")).map(input => parseFloat(input.value));
+
+            if (![...pressures, ...torques, ...downforces].every(value => value >= 0 && value <= 10)) {
+                alert("Todos os valores devem estar entre 0 e 10.");
+                return;
             }
+
+            // Atualiza o multiplicador baseado nos ajustes
+            calculatePerformance();
+            closeTune();
         }
     </script>
 </body>
