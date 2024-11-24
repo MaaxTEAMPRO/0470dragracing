@@ -1,4 +1,3 @@
-/* Resetando margens e padding para garantir um layout consistente */
 * {
     margin: 0;
     padding: 0;
@@ -7,7 +6,7 @@
 
 body {
     font-family: Arial, sans-serif;
-    background-image: url('imagem.webp'); /* Background da página */
+    background-image: url('imagem.webp');
     background-size: cover;
     background-position: center;
     height: 100vh;
