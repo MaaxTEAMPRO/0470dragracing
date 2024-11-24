@@ -3,44 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drag Race Simulator</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Corrida de Arrancada</title>
+    <style>
+        body {
+            background-color: #0a0f1e;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+            color: #0dcaf0;
+        }
+
+        .track {
+            position: relative;
+            margin: 20px auto;
+            width: 90%;
+            height: 300px;
+            background-color: #111c3d;
+            border: 3px solid #0dcaf0;
+            border-radius: 10px;
+        }
+
+        .lane {
+            position: absolute;
+            height: 25%;
+            width: 100%;
+            border-bottom: 2px dashed #0dcaf0;
+        }
+
+        .lane:last-child {
+            border-bottom: none;
+        }
+
+        .car {
+            position: absolute;
+            font-size: 2em;
+            bottom: 10px;
+            left: 10px;
+            transition: transform 0.2s ease-out;
+        }
+
+        #start-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            background-color: #0dcaf0;
+            color: #111c3d;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #start-btn:disabled {
+            background-color: #0a6d9e;
+            cursor: not-allowed;
+        }
+
+        .results-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            background-color: #0a0f1e;
+            border: 2px solid #0dcaf0;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .results-popup h2 {
+            margin-top: 0;
+        }
+
+        .results-popup button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #0dcaf0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .track {
+                height: 250px;
+            }
+
+            .car {
+                font-size: 1.5em;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div id="game-container">
-        <div id="menu" class="menu-screen">
-            <h1>Drag Race Simulator</h1>
-            <p>Personalize seu carro e prepare-se para competir!</p>
-            <label>Boost: <input id="boost" type="range" min="0" max="100" step="10"></label>
-            <label>Potência: <input id="power" type="range" min="1" max="10" step="1"></label>
-            <label>Suspensão (Frente): <input id="suspensionFront" type="range" min="0" max="100" step="10"></label>
-            <label>Suspensão (Traseira): <input id="suspensionRear" type="range" min="0" max="100" step="10"></label>
-            <select id="vehicle">
-                <option value="🚗">Carro Comum</option>
-                <option value="🏎️">Esportivo</option>
-                <option value="🚚">Caminhão</option>
-            </select>
-            <button id="saveConfig">Salvar Configurações</button>
-            <button id="startRace">Começar Corrida</button>
+    <h1>Corrida de Arrancada</h1>
+    <div class="track">
+        <div class="lane" style="top: 0;">
+            <div class="car" id="player-car">🚗</div>
         </div>
-        
-        <div id="race" class="race-screen">
-            <div class="dashboard">
-                <div class="stat">Velocidade: <span id="speed">0</span> km/h</div>
-                <div class="stat">RPM: <span id="rpm">0</span></div>
-                <div class="stat">Boost: <span id="boostLevel">0</span>%</div>
-            </div>
-            <div id="track">
-                <div id="car"></div>
-                <div class="lane-divider"></div>
-                <div id="finish-line"></div>
-            </div>
-            <div class="control-panel">
-                <button id="launchButton">Largar</button>
-                <button id="burnoutButton">Burnout</button>
-            </div>
+        <div class="lane" style="top: 25%;">
+            <div class="car" id="opponent-car-1">🚙</div>
+        </div>
+        <div class="lane" style="top: 50%;">
+            <div class="car" id="opponent-car-2">🏎️</div>
+        </div>
+        <div class="lane" style="top: 75%;">
+            <div class="car" id="opponent-car-3">🚕</div>
         </div>
     </div>
-    <script src="script.js"></script>
+    <button id="start-btn">Iniciar Corrida</button>
+
+    <div class="results-popup" id="results-popup">
+        <h2>Resultados da Corrida</h2>
+        <p id="results-details"></p>
+        <button onclick="closeResults()">Fechar</button>
+    </div>
+
+    <script>
+        const playerCar = document.getElementById("player-car");
+        const opponentCars = [
+            document.getElementById("opponent-car-1"),
+            document.getElementById("opponent-car-2"),
+            document.getElementById("opponent-car-3")
+        ];
+        const startBtn = document.getElementById("start-btn");
+        const resultsPopup = document.getElementById("results-popup");
+        const resultsDetails = document.getElementById("results-details");
+
+        let raceStarted = false;
+
+        startBtn.addEventListener("click", () => {
+            if (raceStarted) return;
+            raceStarted = true;
+            startBtn.disabled = true;
+
+            const playerTime = (Math.random() * 2 + 3).toFixed(2); // Simula entre 3 a 5 segundos
+            const opponentTimes = opponentCars.map(() => (Math.random() * 2 + 3).toFixed(2));
+
+            animateCars(playerTime, opponentTimes);
+        });
+
+        function animateCars(playerTime, opponentTimes) {
+            const totalDistance = 90; // % da pista
+            const timeFactor = 1000; // para ajustar o tempo
+
+            playerCar.style.transitionDuration = `${playerTime}s`;
+            playerCar.style.transform = `translateX(${totalDistance}%)`;
+
+            opponentCars.forEach((car, i) => {
+                car.style.transitionDuration = `${opponentTimes[i]}s`;
+                car.style.transform = `translateX(${totalDistance}%)`;
+            });
+
+            setTimeout(() => {
+                showResults(playerTime, opponentTimes);
+            }, Math.max(playerTime, ...opponentTimes) * timeFactor);
+        }
+
+        function showResults(playerTime, opponentTimes) {
+            const times = [playerTime, ...opponentTimes];
+            const sorted = [...times].sort((a, b) => a - b);
+            const playerPosition = sorted.indexOf(playerTime) + 1;
+
+            resultsDetails.innerHTML = `
+                <strong>Seu tempo:</strong> ${playerTime}s<br>
+                <strong>Posição:</strong> ${playerPosition}º lugar<br><br>
+                <strong>Tempos dos oponentes:</strong><br>
+                ${opponentTimes
+                    .map((time, i) => `Oponente ${i + 1}: ${time}s`)
+                    .join("<br>")}
+            `;
+            resultsPopup.style.display = "block";
+            raceStarted = false;
+            startBtn.disabled = false;
+
+            // Reset cars
+            resetCars();
+        }
+
+        function resetCars() {
+            playerCar.style.transform = "translateX(0)";
+            opponentCars.forEach((car) => (car.style.transform = "translateX(0)"));
+        }
+
+        function closeResults() {
+            resultsPopup.style.display = "none";
+        }
+    </script>
 </body>
 </html>
