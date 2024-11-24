@@ -1,150 +1,102 @@
-* {
+/* Reset */
+body, html {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    background: url('imagem.webp') no-repeat center center fixed;
+    background-size: cover;
+    overflow: hidden;
 }
 
-body {
-    font-family: Arial, sans-serif;
-    background-image: url('imagem.webp');
-    background-size: cover;
-    background-position: center;
+/* Container Principal */
+#game-container {
+    width: 100%;
     height: 100vh;
     display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    align-items: center;
-    flex-direction: column;
+}
+
+/* Menu */
+.menu-screen {
     text-align: center;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
     color: white;
 }
 
-h1 {
-    margin-bottom: 20px;
-    font-size: 36px;
-}
-
-/* Estilo dos botões */
-button {
-    margin: 10px;
-    padding: 15px 30px;
-    font-size: 18px;
-    background-color: #333;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-button:hover {
-    background-color: #555;
-}
-
-button:disabled {
-    background-color: #888;
-    cursor: not-allowed;
-}
-
-/* Layout do menu */
-#menu {
+/* Race Screen */
+.race-screen {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: space-between;
     width: 100%;
+    height: 100%;
 }
 
-#menu input,
-#menu select {
-    margin: 10px 0;
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-}
-
-/* Layout da tela de corrida */
-#race {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
+#track {
     position: relative;
-    display: none;
+    width: 90%;
+    height: 60%;
+    margin-top: 20px;
+    background: #333;
+    border: 3px solid white;
+    border-radius: 10px;
+    overflow: hidden;
 }
 
 #car {
-    font-size: 100px;
-    transition: left 3s linear, transform 3s ease-in-out;
     position: absolute;
-    left: 0;
-    bottom: 50px;
-    transform-origin: center;
+    bottom: 10%;
+    left: 5%;
+    width: 50px;
+    height: 20px;
+    background: red;
+    transform-origin: bottom center;
+    transition: transform 0.2s, left 0.5s linear;
 }
 
-/* Barra de Burnout */
-#burnoutBar {
-    width: 0%;
-    height: 20px;
-    background-color: red;
-    transition: width 1s linear;
+#finish-line {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 5%;
+    height: 100%;
+    background: white;
+}
+
+.dashboard {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    color: white;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 10px;
+}
+
+.control-panel {
     margin-top: 20px;
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
 }
 
-/* Zona de Burnout */
-#targetZone {
-    position: absolute;
-    top: 45%;
-    left: 40%;
-    width: 20%;
-    height: 20px;
-    background-color: green;
+button {
+    padding: 10px 20px;
+    font-size: 18px;
+    background: #222;
+    color: white;
+    border: 2px solid white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
 }
 
-/* Semáforo (Pinheirinho) */
-.light {
-    width: 30px;
-    height: 30px;
-    background-color: gray;
-    border-radius: 50%;
-    margin: 5px;
-    display: inline-block;
-}
-
-.light.active {
-    background-color: red;
-}
-
-.light.ready {
-    background-color: yellow;
-}
-
-/* Exibição de tempos de reação e total */
-#reactionTime, #totalTime {
-    font-size: 24px;
-    margin: 10px 0;
-}
-
-/* Botões de Acelerar e Largar */
-#accelerateButton, #launchButton {
-    font-size: 20px;
-    margin: 10px 0;
-}
-
-/* Layout Responsivo */
-@media (max-width: 768px) {
-    button {
-        width: 80%;
-    }
-
-    #car {
-        font-size: 80px;
-    }
-
-    #reactionTime, #totalTime {
-        font-size: 18px;
-    }
-
-    #burnoutBar {
-        height: 15px;
-    }
+button:hover {
+    background: white;
+    color: black;
 }
