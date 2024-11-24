@@ -10,26 +10,28 @@
   <div id="game">
     <!-- Menu -->
     <div id="menu">
-      <h1>Configuração do Carro</h1>
-      <label>
-        Combustível (Boost):
-        <input type="range" id="boost" min="1" max="10" value="5">
-      </label>
-      <label>
-        Potência:
-        <input type="range" id="power" min="1" max="10" value="5">
-      </label>
-      <label>
-        Escolha seu veículo:
-        <select id="vehicle">
-          <option value="🚗">Carro</option>
-          <option value="🏎️">F1</option>
-          <option value="🚚">Caminhão</option>
-          <option value="✈️">Avião</option>
-        </select>
-      </label>
-      <button id="saveConfig">Salvar Configurações</button>
-      <button id="startRace">Ir para Corrida</button>
+      <h1>Jogo de Arrancada</h1>
+      <div class="config">
+        <label>
+          <span>Combustível (Boost):</span>
+          <input type="range" id="boost" min="1" max="10" value="5">
+        </label>
+        <label>
+          <span>Potência:</span>
+          <input type="range" id="power" min="1" max="10" value="5">
+        </label>
+        <label>
+          <span>Escolha seu veículo:</span>
+          <select id="vehicle">
+            <option value="🚗">Carro</option>
+            <option value="🏎️">F1</option>
+            <option value="🚚">Caminhão</option>
+            <option value="✈️">Avião</option>
+          </select>
+        </label>
+        <button id="saveConfig">Salvar Configurações</button>
+        <button id="startRace">Iniciar Corrida</button>
+      </div>
     </div>
 
     <!-- Corrida -->
@@ -40,19 +42,19 @@
         <div class="light" id="light2"></div>
         <div class="light" id="light3"></div>
       </div>
-      <button id="accelerateButton">Run</button>
-      <button id="launchButton" disabled>Launch</button>
       <div id="track">
         <div id="car">🚗</div>
       </div>
       <div id="results">
-        <p>Tempo de Reação: <span id="reactionTime">0</span>ms</p>
-        <p>Tempo Total: <span id="totalTime">0</span>ms</p>
+        <p><strong>Tempo de Reação:</strong> <span id="reactionTime">0</span> ms</p>
+        <p><strong>Tempo Total:</strong> <span id="totalTime">0</span> ms</p>
       </div>
       <div id="controls">
-        <button id="backToMenu">Voltar ao Menu</button>
-        <button id="restartRace">Reiniciar Corrida</button>
-        <button id="printResult">Printar Resultado</button>
+        <button id="accelerateButton">Acelerar</button>
+        <button id="launchButton" disabled>Launch</button>
+        <button id="restartRace">Reiniciar</button>
+        <button id="backToMenu">Menu</button>
+        <button id="printResult">Imprimir Resultado</button>
       </div>
     </div>
   </div>
